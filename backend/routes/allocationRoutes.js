@@ -8,4 +8,4 @@ router.post('/simulate', auth, role('admin', 'superadmin'), ctrl.simulate)
 router.post('/save', auth, role('admin', 'superadmin'), ctrl.save)
 router.get('/history/:regionId', auth, ctrl.getHistory)
 
-module.exports = router
+module.exports = router;

@@ -1,12 +1,31 @@
 const nodemailer = require('nodemailer')
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,   // Gmail App Password (not your login password)
-  },
-})
+// In development without email creds, log OTP to console instead of crashing
+let transporter
+
+if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+  transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  })
+} else {
+  // Fake transporter — logs to console, never crashes
+  transporter = {
+    sendMail: async (opts) => {
+      console.log('\n📧 DEV EMAIL (not sent):')
+      console.log('  To:', opts.to)
+      console.log('  Subject:', opts.subject)
+      // Extract OTP from HTML if present
+      const otpMatch = opts.html?.match(/>(\d{6})</)
+      if (otpMatch) console.log('  OTP:', otpMatch[1])
+      console.log('')
+      return { messageId: 'dev-' + Date.now() }
+    }
+  }
+}
 
 // ─── Shared HTML wrapper ──────────────────────────────────────────────────────
 const wrap = (body) => `

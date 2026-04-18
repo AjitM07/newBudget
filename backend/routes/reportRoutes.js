@@ -3,7 +3,7 @@ const ctrl = require('../controllers/reportController')
 const auth = require('../middleware/authMiddleware')
 const role = require('../middleware/roleMiddleware')
 
-// ── Reports ──────────────────────────────────────────────────────────────────
+
 router.post(
   '/generate',
   auth, role('admin', 'superadmin'),
@@ -40,7 +40,6 @@ router.post(
   ctrl.emailReport
 )
 
-// ── Scenarios ─────────────────────────────────────────────────────────────────
 router.post(
   '/scenarios/save',
   auth, role('admin', 'superadmin'),
@@ -53,7 +52,7 @@ router.get(
   ctrl.getScenarios
 )
 
-// ── Comparison ────────────────────────────────────────────────────────────────
+
 router.post(
   '/compare',
   auth, role('admin', 'superadmin'),

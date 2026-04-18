@@ -3,4 +3,4 @@ const ctrl = require('../controllers/citizenController')
 
 router.get('/region/:regionId', ctrl.getPublicRegionData)
 
-module.exports = router
+module.exports = router;

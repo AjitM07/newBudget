@@ -6,8 +6,12 @@ const { v4: uuidv4 } = require('uuid')
 
 exports.register = async (req, res) => {
   const { name, email, password, govId, regionType, regionName } = req.body
-  if (!email.endsWith('.gov.in') && !email.endsWith('.nic.in'))
-    return res.status(400).json({ message: 'Only official .gov.in or .nic.in emails allowed' })
+
+  
+  // if (!email.endsWith('.gov.in') && !email.endsWith('.nic.in'))
+  //   return res.status(400).json({ message: 'Only official .gov.in or .nic.in emails allowed' })
+
+
   if (await User.findOne({ email }))
     return res.status(400).json({ message: 'Email already registered' })
   const otp = generateOTP()
