@@ -1,3 +1,5 @@
+////// authController.js
+
 const User = require('../models/User')
 const generateOTP = require('../utils/generateOTP')
 const { sendOTPEmail, sendApprovalEmail, sendRejectionEmail } = require('../config/mailer')
@@ -43,7 +45,7 @@ exports.register = async (req, res) => {
       otp,
       otpExpiry,
       isEmailVerified: false,
-      isApproved: false,
+      isApproved: true,
     })
 
     // Send OTP email — if email fails, still return success so user can see OTP in logs
@@ -94,7 +96,7 @@ exports.verifyOTP = async (req, res) => {
     user.otpExpiry = undefined
     await user.save()
 
-    res.json({ message: 'Email verified successfully. Awaiting superadmin approval.' })
+    res.json({ message: 'Email verified successfully. You can now log in.' })
   } catch (err) {
     console.error('VerifyOTP error:', err)
     res.status(500).json({ message: err.message || 'Verification failed' })
@@ -128,11 +130,11 @@ exports.login = async (req, res) => {
       return res.status(403).json({ message: 'Email not verified. Check your inbox for OTP.' })
     }
 
-    if (!user.isApproved) {
-      return res.status(403).json({
-        message: 'Account pending superadmin approval. You will receive an email once approved.',
-      })
-    }
+    // if (!user.isApproved) {
+    //   return res.status(403).json({
+    //     message: 'Account pending superadmin approval. You will receive an email once approved.',
+    //   })
+    // }
 
     const token = signToken({ id: user._id, role: user.role })
 
