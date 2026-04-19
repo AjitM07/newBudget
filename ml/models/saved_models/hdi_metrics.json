@@ -1,0 +1,28 @@
+{
+  "mae": 0.001512,
+  "r2": 0.9914,
+  "feature_importances": {
+    "gdp_per_capita": 0.0,
+    "population": 0.00029,
+    "infant_mortality_rate": 0.96203,
+    "literacy_rate": 0.01386,
+    "dropout_rate": 0.00182,
+    "hospital_beds_per1000": 0.00112,
+    "road_density": 0.00786,
+    "electrification_pct": 0.00061,
+    "poverty_rate": 0.0003,
+    "gini_coefficient": 0.00105,
+    "enrollment_rate": 0.00102,
+    "crop_yield_index": 0.00071,
+    "unemployment_rate": 0.00146,
+    "water_access_pct": 0.00095,
+    "irrigation_coverage": 0.00139,
+    "alloc_healthcare": 0.00062,
+    "alloc_education": 0.00044,
+    "alloc_infrastructure": 0.00029,
+    "alloc_agriculture": 0.00026,
+    "alloc_welfare": 0.00077,
+    "log_total_budget": 0.00029,
+    "year": 0.00286
+  }
+}

@@ -1,0 +1,16 @@
+district_id,district_name,state,population_2012,gdp_base_lakh
+MH_PUNE,Pune,Maharashtra,9429408,1250000
+MH_NAGPUR,Nagpur,Maharashtra,4653570,520000
+UP_LUCKNOW,Lucknow,Uttar Pradesh,4588455,380000
+UP_VARANASI,Varanasi,Uttar Pradesh,3676841,210000
+RJ_JAIPUR,Jaipur,Rajasthan,6626178,560000
+RJ_JODHPUR,Jodhpur,Rajasthan,3685681,220000
+KA_BANGALORE,Bangalore Rural,Karnataka,988747,980000
+KA_MYSORE,Mysore,Karnataka,3001127,310000
+TN_CHENNAI,Chennai,Tamil Nadu,7088000,1450000
+TN_MADURAI,Madurai,Tamil Nadu,3038252,190000
+WB_KOLKATA,Kolkata,West Bengal,4486679,890000
+WB_HOWRAH,Howrah,West Bengal,4841638,260000
+GJ_AHMEDABAD,Ahmedabad,Gujarat,7208200,1100000
+MP_BHOPAL,Bhopal,Madhya Pradesh,2371061,340000
+OR_BHUBANESWAR,Bhubaneswar,Odisha,837737,180000

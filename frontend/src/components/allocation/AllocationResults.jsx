@@ -18,9 +18,10 @@ const SECTOR_COLORS = {
 // ── Single sector card ─────────────────────────────────────────────────────
 function SectorCard({ s, totalBudget }) {
   const [expanded, setExpanded] = useState(false)
-  const color    = SECTOR_COLORS[s.sector] || 'var(--accent-lt)'
-  const amount   = s.fraction * totalBudget
-  const change   = s.changeFromPrev   // positive=increase, negative=decrease, 0=same
+  const color    = SECTOR_COLORS[s?.sector] || 'var(--accent-lt)'
+  const fraction = parseFloat(s?.fraction ?? 0) || 0
+  const amount   = fraction * (Number(totalBudget) || 0)
+  const change   = parseFloat(s?.changeFromPrev ?? 0) || 0
 
   const ChangeIcon  = change > 0 ? TrendingUp : change < 0 ? TrendingDown : Minus
   const changeColor = change > 0
@@ -47,7 +48,7 @@ function SectorCard({ s, totalBudget }) {
           <span style={{
             fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: 14,
           }}>
-            {s.sector}
+            {s?.sector}
           </span>
         </div>
         <div style={{
@@ -58,6 +59,7 @@ function SectorCard({ s, totalBudget }) {
           {change === 0
             ? 'No change'
             : `${change > 0 ? '+' : ''}${change.toFixed(1)}%`}
+
         </div>
       </div>
 
@@ -194,18 +196,19 @@ export default function AllocationResults() {
   // Nothing to show yet
   if (!sectorAnalysis || sectorAnalysis.length === 0) return null
 
-  const barData = sectorAnalysis.map(s => ({
-    sector:    s.sector.slice(0, 5),
-    fullName:  s.sector,
-    allocated: parseFloat((s.fraction * 100).toFixed(1)),
-    urgency:   s.urgencyScore,
+  const barData = sectorAnalysis.filter(s => s?.sector).map(s => ({
+    sector:    (s.sector || '').slice(0, 5),
+    fullName:  s.sector || '',
+    allocated: parseFloat(((parseFloat(s.fraction || 0)) * 100).toFixed(1)),
+    urgency:   parseFloat(s.urgencyScore || 0),
   }))
 
-  const radarData = sectorAnalysis.map(s => ({
-    sector:     s.sector,
-    Allocation: parseFloat((s.fraction * 100).toFixed(1)),
-    Urgency:    s.urgencyScore,
-    Efficiency: s.efficiencyScore || 60,
+  const radarData = sectorAnalysis.filter(s => s?.sector).map(s => ({
+    sector:     s.sector || '',
+    Allocation: parseFloat(((parseFloat(s.fraction || 0)) * 100).toFixed(1)),
+    Urgency:    parseFloat(s.urgencyScore || 0),
+    Efficiency: parseFloat(s.efficiencyScore || 60),
+
   }))
 
   const CustomBarTooltip = ({ active, payload }) => {

@@ -1,0 +1,28 @@
+{
+  "overall": {
+    "mae": 0.74,
+    "r2": 0.9793
+  },
+  "per_sector": {
+    "Healthcare": {
+      "mae": 1.22,
+      "r2": 0.9745
+    },
+    "Education": {
+      "mae": 0.82,
+      "r2": 0.9721
+    },
+    "Infrastructure": {
+      "mae": 0.39,
+      "r2": 0.9925
+    },
+    "Agriculture": {
+      "mae": 0.54,
+      "r2": 0.977
+    },
+    "Welfare": {
+      "mae": 0.71,
+      "r2": 0.9804
+    }
+  }
+}

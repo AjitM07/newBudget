@@ -1,99 +1,136 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { registerAdmin, verifyOTP } from '../services/authService'
+import { registerAdmin } from '../services/authService'
+import useAuthStore from '../store/authStore'
 import toast from 'react-hot-toast'
+import { Mail, Lock, Eye, EyeOff, User, BadgeCheck, MapPin } from 'lucide-react'
 
-const REGION_TYPES = ['State', 'District', 'Municipal Corporation', 'Panchayat', 'Central Ministry']
+const REGION_TYPES = ['Central Ministry', 'State Government', 'District Administration', 'Municipal Corporation', 'Panchayat']
 
 export default function AdminRegister() {
-  const [step, setStep] = useState(1)
-  const [form, setForm] = useState({ name: '', email: '', password: '', govId: '', regionType: '', regionName: '' })
-  const [otp, setOtp] = useState('')
-  const [loading, setLoading] = useState(false)
-  const navigate = useNavigate()
+  const [form, setForm] = useState({ name: '', email: '', password: '', govId: '', regionName: '', regionType: '' })
+  const [showPass, setShowPass] = useState(false)
+  const [loading, setLoading]   = useState(false)
+  const { setAuth }             = useAuthStore()
+  const navigate                = useNavigate()
 
-  const f = (key) => ({ value: form[key], onChange: e => setForm({ ...form, [key]: e.target.value }) })
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }))
 
-  const handleRegister = async () => {
-    if (!form.email.endsWith('.gov.in') && !form.email.endsWith('.nic.in'))
-      return toast.error('Only .gov.in or .nic.in email allowed')
-    if (!form.govId) return toast.error('Government ID is required')
+  const handleSubmit = async () => {
+    const { name, email, password, govId, regionName, regionType } = form
+    if (!name || !email || !password || !govId || !regionName || !regionType)
+      return toast.error('All fields are required')
+    if (password.length < 8)
+      return toast.error('Password must be at least 8 characters')
+    if (!email.includes('@'))
+      return toast.error('Enter a valid email address')
+
     setLoading(true)
     try {
-      await registerAdmin(form)
-      toast.success('OTP sent to your official email')
-      setStep(2)
-    } catch (err) { toast.error(err.response?.data?.message || 'Registration failed') }
-    finally { setLoading(false) }
-  }
-
-  const handleVerify = async () => {
-    if (otp.length !== 6) return toast.error('Enter valid 6-digit OTP')
-    setLoading(true)
-    try {
-      await verifyOTP({ email: form.email, otp })
-      toast.success('Verified! Awaiting superadmin approval.')
-      navigate('/admin/login')
-    } catch { toast.error('Invalid or expired OTP') }
-    finally { setLoading(false) }
+      const res = await registerAdmin(form)
+      setAuth(res.data.user, res.data.token)
+      toast.success('Account created! Welcome.')
+      navigate('/admin/dashboard')
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Registration failed')
+    } finally { setLoading(false) }
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-      <div className="card fade-up" style={{ width: '100%', maxWidth: 460, padding: 40 }}>
-        {/* Progress */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 32 }}>
-          {[1, 2].map(s => (
-            <div key={s} style={{
-              flex: 1, height: 4, borderRadius: 2,
-              background: step >= s ? 'var(--accent)' : 'var(--border)',
-              transition: 'background 0.3s',
-            }} />
-          ))}
+    <div style={S.page}>
+      <div style={S.glow} />
+      <div style={S.card}>
+
+        <div style={S.icon}><BadgeCheck size={24} color="#fff" /></div>
+        <h1 style={S.title}>Admin Registration</h1>
+        <p style={S.sub}>Create your government official account</p>
+
+        {/* Row 1: Name + Govt ID */}
+        <div style={S.grid2}>
+          <div>
+            <label style={S.label}>Full Name</label>
+            <div style={S.row}>
+              <User size={14} style={S.ico} />
+              <input style={S.input} placeholder="Your full name" value={form.name} onChange={set('name')} />
+            </div>
+          </div>
+          <div>
+            <label style={S.label}>Govt Employee ID</label>
+            <div style={S.row}>
+              <BadgeCheck size={14} style={S.ico} />
+              <input style={S.input} placeholder="e.g. EMP12345" value={form.govId} onChange={set('govId')} />
+            </div>
+          </div>
         </div>
 
-        {step === 1 ? (
-          <>
-            <h1 style={{ fontFamily: 'var(--font-head)', fontSize: 22, fontWeight: 800, marginBottom: 6 }}>Request Admin Access</h1>
-            <p style={{ fontSize: 13, color: 'var(--text3)', marginBottom: 24 }}>Use your official government email</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <input className="input" placeholder="Full Name" {...f('name')} />
-              <input className="input" placeholder="Official Email (.gov.in / .nic.in)" type="email" {...f('email')} />
-              <input className="input" placeholder="Password" type="password" {...f('password')} />
-              <input className="input" placeholder="Government Employee ID" {...f('govId')} />
-              <select className="input" {...f('regionType')} style={{ cursor: 'pointer' }}>
-                <option value="">Select Region Type</option>
-                {REGION_TYPES.map(r => <option key={r}>{r}</option>)}
-              </select>
-              <input className="input" placeholder="Region Name (e.g. Maharashtra / Pune District)" {...f('regionName')} />
-              <button className="btn-primary" onClick={handleRegister} disabled={loading} style={{ marginTop: 4 }}>
-                {loading ? 'Sending OTP...' : 'Send OTP →'}
-              </button>
-            </div>
-          </>
-        ) : (
-          <>
-            <h1 style={{ fontFamily: 'var(--font-head)', fontSize: 22, fontWeight: 800, marginBottom: 6 }}>Verify Email</h1>
-            <p style={{ fontSize: 13, color: 'var(--text3)', marginBottom: 24 }}>
-              6-digit OTP sent to <strong style={{ color: 'var(--accent-lt)' }}>{form.email}</strong>
-            </p>
-            <input className="input" placeholder="Enter 6-digit OTP" value={otp}
-              onChange={e => setOtp(e.target.value)} maxLength={6}
-              style={{ fontSize: 24, letterSpacing: 16, textAlign: 'center', marginBottom: 14 }}
-              onKeyDown={e => e.key === 'Enter' && handleVerify()} />
-            <button className="btn-primary" onClick={handleVerify} disabled={loading} style={{ width: '100%' }}>
-              {loading ? 'Verifying...' : 'Verify & Submit for Approval'}
-            </button>
-            <p style={{ fontSize: 11, color: 'var(--text3)', textAlign: 'center', marginTop: 16, lineHeight: 1.6 }}>
-              After OTP verification, a superadmin will review your Gov ID before granting access.
-            </p>
-          </>
-        )}
+        {/* Email */}
+        <label style={S.label}>Email Address</label>
+        <div style={S.row}>
+          <Mail size={14} style={S.ico} />
+          <input style={S.input} type="email" placeholder="you@gmail.com" value={form.email} onChange={set('email')} />
+        </div>
 
-        <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--text3)', marginTop: 24 }}>
-          Already registered? <Link to="/admin/login" style={{ color: 'var(--accent-lt)', fontWeight: 600 }}>Login</Link>
-        </p>
+        {/* Password */}
+        <label style={S.label}>Password</label>
+        <div style={S.row}>
+          <Lock size={14} style={S.ico} />
+          <input
+            style={{ ...S.input, paddingRight: 38 }}
+            type={showPass ? 'text' : 'password'}
+            placeholder="Min. 8 characters"
+            value={form.password}
+            onChange={set('password')}
+          />
+          <button style={S.eye} onClick={() => setShowPass((v) => !v)} tabIndex={-1}>
+            {showPass ? <EyeOff size={14} /> : <Eye size={14} />}
+          </button>
+        </div>
+
+        {/* Row 2: Region Name + Region Type */}
+        <div style={S.grid2}>
+          <div>
+            <label style={S.label}>Region / District</label>
+            <div style={S.row}>
+              <MapPin size={14} style={S.ico} />
+              <input style={S.input} placeholder="e.g. Pune District" value={form.regionName} onChange={set('regionName')} />
+            </div>
+          </div>
+          <div>
+            <label style={S.label}>Region Type</label>
+            <div style={S.row}>
+              <MapPin size={14} style={S.ico} />
+              <select style={{ ...S.input, cursor: 'pointer' }} value={form.regionType} onChange={set('regionType')}>
+                <option value="">Select type…</option>
+                {REGION_TYPES.map((r) => <option key={r} value={r}>{r}</option>)}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <button style={{ ...S.btn, opacity: loading ? 0.7 : 1 }} onClick={handleSubmit} disabled={loading}>
+          {loading ? 'Creating account…' : 'Create Account →'}
+        </button>
+
+        <p style={S.foot}>Already have an account? <Link to="/admin/login" style={S.link}>Login</Link></p>
       </div>
     </div>
   )
+}
+
+const S = {
+  page:  { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 },
+  glow:  { position: 'fixed', inset: 0, background: 'radial-gradient(ellipse at center, rgba(37,99,235,0.1) 0%, transparent 65%)', pointerEvents: 'none' },
+  card:  { position: 'relative', width: '100%', maxWidth: 560, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 20, padding: '40px 36px' },
+  icon:  { width: 50, height: 50, borderRadius: 14, background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18 },
+  title: { fontFamily: 'var(--font-head)', fontSize: 22, fontWeight: 800, color: 'var(--text)', marginBottom: 4 },
+  sub:   { fontSize: 13, color: 'var(--text3)', marginBottom: 24 },
+  grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 },
+  label: { display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--text2)', marginBottom: 6, marginTop: 14 },
+  row:   { position: 'relative' },
+  ico:   { position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text3)', pointerEvents: 'none' },
+  input: { width: '100%', background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10, padding: '11px 14px 11px 34px', color: 'var(--text)', fontFamily: 'var(--font-body)', fontSize: 14, outline: 'none', boxSizing: 'border-box', appearance: 'none' },
+  eye:   { position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text3)', display: 'flex' },
+  btn:   { width: '100%', marginTop: 24, marginBottom: 20, background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: 10, padding: 13, fontFamily: 'var(--font-head)', fontSize: 15, fontWeight: 700, cursor: 'pointer' },
+  foot:  { textAlign: 'center', fontSize: 13, color: 'var(--text3)' },
+  link:  { color: 'var(--accent-lt)', fontWeight: 600, textDecoration: 'none' },
 }
