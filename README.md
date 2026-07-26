@@ -1,4 +1,5 @@
-# Public Budget Allocation Optimization Platform
+# BudgetOS
+## Public Budget Allocation Optimization Platform
 
 The Public Budget Allocation Optimization Platform is a full-stack web application that enables transparent, data-driven planning and visualization of public budget allocations. The platform allows administrators to manage budget distribution across various sectors and regions, while providing citizens with insightful dashboards, reports, and allocation visualizations. It combines modern web technologies with interactive analytics to improve transparency, decision-making, and public engagement in government budget planning.
 
